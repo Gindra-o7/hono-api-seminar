@@ -3,7 +3,7 @@ import SimpleCrypto from "simple-crypto-js";
 export default class CryptoHelper {
 
     // Buat instance crypto sekali saja dan gunakan kembali.
-    private static crypto = new SimpleCrypto(process.env.SECRET_KEY_ID_PEMBIMBING_INSTANSI_VALIDATOR);
+    private static crypto = new SimpleCrypto(process.env.HANZ_CRYPTO_KEY);
 
     /**
      * Mengenkripsi payload menjadi sebuah ID yang aman untuk digunakan di dalam URL.
