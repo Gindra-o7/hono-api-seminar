@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JenisJadwal {
+  SEMKP
+  SEMPRO
+  SEMHAS_LAPORAN
+  SEMHAS_PAPERBASED
+  SIDANG_TA_LAPORAN
+  SIDANG_TA_PAPERBASED
+}
+
+model dosen {
+  nip                  String   @id(map: "pk_nip_dosen") @db.VarChar(18)
+  nama                 String   @db.VarChar(255)
+  email                String   @unique @db.VarChar(255)
+  no_hp                String?  @unique @db.VarChar(14)
+  username_telegram    String?  @unique @db.VarChar(255)
+  id_telegram          String?  @unique @db.VarChar(255)
+  
+  // Relasi untuk mahasiswa PA
+  nipSebagaiMahasiswaPA       mahasiswa[] @relation("MahasiswaPA")
+
+  // Relasi untuk berbagai peran dalam jadwal  
+  jadwalSebagaiPembimbing1    jadwal[] @relation("Pembimbing1")
+  jadwalSebagaiPembimbing2    jadwal[] @relation("Pembimbing2")
+  jadwalSebagaiPenguji1       jadwal[] @relation("Penguji1")
+  jadwalSebagaiPenguji2       jadwal[] @relation("Penguji2")
+  jadwalSebagaiKetuaSidang    jadwal[] @relation("KetuaSidang")
+}
+
+model mahasiswa {
+  nim    String   @id(map: "pk_nim_mahasiswa") @db.VarChar(11)
+  nama   String   @db.VarChar(255)
+  aktif  Boolean  @default(true)
+  email  String   @unique @db.VarChar(36)
+
+  nip    String   @db.VarChar(18)
+  dosen  dosen    @relation("MahasiswaPA", fields: [nip], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_mahasiswa")
+  
+  jadwal jadwal[] @relation("JadwalMahasiswa")
+}
+
+model tahun_ajaran {
+  kode        String   @id(map: "pk_kode_tahun_ajaran") @db.VarChar(9)
+  nama        String   @db.VarChar(20)
+  tgl_mulai   DateTime @db.Date
+  tgl_selesai DateTime @db.Date
+  
+  jadwal      jadwal[] @relation("JadwalTahunAjaran")
+}
+
+model ruangan {
+  nama   String   @id(map: "pk_nama_ruangan") @db.VarChar(10)
+  jadwal jadwal[] @relation("JadwalRuangan")
+}
+
+model jadwal {
+  id            String   @id(map: "pk_id_jadwal") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tanggal       DateTime @db.Date
+  waktu_mulai   DateTime @db.Timestamp()
+  waktu_selesai DateTime @db.Timestamp()
+  jenis         JenisJadwal
+  
+  // Relasi dengan Mahasiswa
+  nim           String    @db.VarChar(11)
+  mahasiswa     mahasiswa @relation("JadwalMahasiswa", fields: [nim], references: [nim], onDelete: NoAction, onUpdate: Cascade, map: "fk_nim_mahasiswa")
+
+  // Relasi dengan Ruangan
+  nama_ruangan  String    @db.VarChar(10)
+  ruangan       ruangan   @relation("JadwalRuangan", fields: [nama_ruangan], references: [nama], onDelete: NoAction, onUpdate: Cascade, map: "fk_nama_ruangan")
+
+  // Relasi dengan Dosen sebagai Pembimbing 1
+  nip_pembimbing_1 String  @db.VarChar(18)
+  pembimbing_1     dosen   @relation("Pembimbing1", fields: [nip_pembimbing_1], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_pembimbing_1")
+
+  // Relasi dengan dosen sebagai Pembimbing 2 (Opsional)
+  nip_pembimbing_2 String? @db.VarChar(18) 
+  pembimbing_2     dosen?  @relation("Pembimbing2", fields: [nip_pembimbing_2], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_pembimbing_2")
+
+  // Relasi dengan dosen sebagai Penguji 1
+  nip_penguji_1    String  @db.VarChar(18)
+  penguji_1        dosen   @relation("Penguji1", fields: [nip_penguji_1], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_penguji_1")
+
+  // Relasi dengan dosen sebagai Penguji 2 (Opsional)
+  nip_penguji_2    String? @db.VarChar(18)
+  penguji_2        dosen?  @relation("Penguji2", fields: [nip_penguji_2], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_penguji_2")
+
+  // Relasi dengan dosen sebagai Ketua Sidang
+  nip_ketua_sidang String  @db.VarChar(18)
+  ketua_sidang     dosen   @relation("KetuaSidang", fields: [nip_ketua_sidang], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_ketua_sidang")
+
+  // Relasi dengan Tahun Ajaran
+  kode_tahun_ajaran String       @db.VarChar(9)
+  tahun_ajaran      tahun_ajaran @relation("JadwalTahunAjaran", fields: [kode_tahun_ajaran], references: [kode], onDelete: NoAction, onUpdate: Cascade, map: "fk_kode_tahun_ajaran")
+}
