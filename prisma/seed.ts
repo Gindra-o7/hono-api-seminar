@@ -44,12 +44,30 @@ async function main() {
 
 	const resultRuangan = await prisma.ruangan.createMany({
 		data: [
-			{ nama: "FST-301" },
-			{ nama: "FST-302" },
-			{ nama: "FST-303" },
-			{ nama: "FST-304" },
-			{ nama: "FST-305" },
-			{ nama: "FST-306" },
+			{ 
+				kode: "FST-301",
+				nama: "FST-301" 
+			},
+			{ 
+				kode: "FST-302",
+				nama: "FST-302" 
+			},
+			{ 
+				kode: "FST-303",
+				nama: "FST-303" 
+			},
+			{ 
+				kode: "FST-304",
+				nama: "FST-304" 
+			},
+			{ 
+				kode: "FST-305",
+				nama: "FST-305" 
+			},
+			{ 
+				kode: "FST-306",
+				nama: "FST-306" 
+			},
 		],
 		skipDuplicates: true,
 	});
@@ -61,24 +79,6 @@ async function main() {
 			: "Data was inserted previously, no new data inserted."
 	);
 
-	const resultTahunAjaran = await prisma.tahun_ajaran.createMany({
-		data: [
-			{ 
-				kode: "202520262",
-				nama: "2025/2026 Genap",
-				tgl_mulai: new Date("2025-01-30"),
-				tgl_selesai: new Date("2025-07-30")
-			}
-		],
-		skipDuplicates: true,
-	});
-
-	console.log(
-		"[DEBUG] Result of inserted tahun_ajaran createMany:",
-		resultTahunAjaran.count > 0
-			? resultTahunAjaran
-			: "Data was inserted previously, no new data inserted."
-	);
 }
 
 main()
