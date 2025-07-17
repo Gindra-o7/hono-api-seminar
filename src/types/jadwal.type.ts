@@ -6,7 +6,7 @@ export interface PostJadwalType {
   waktu_selesai: Date;
   jenis: JenisJadwal;
   nim: string;
-  nama_ruangan: string;
+  kode_ruangan: string;
   nip_pembimbing_1: string;
   nip_pembimbing_2?: string;
   nip_penguji_1: string;
