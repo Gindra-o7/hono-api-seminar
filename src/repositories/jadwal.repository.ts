@@ -28,13 +28,13 @@ export default class JadwalRepository {
   }
 
   public static async findKonflikRuangan(
-    nama_ruangan: string,
+    kode_ruangan: string,
     waktu_mulai: Date,
     waktu_selesai: Date
   ) {
     return prisma.jadwal.findFirst({
       where: {
-        nama_ruangan,
+        kode_ruangan,
         OR: [
           {
             waktu_mulai: {
