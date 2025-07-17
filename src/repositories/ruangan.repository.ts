@@ -7,8 +7,8 @@ export default class RuanganRepository {
   }
 
   public static async findByName(nama: string) {
-    return prisma.ruangan.findUnique({
-      where: { nama },
+    return prisma.ruangan.findFirst({
+      where: { nama: nama },
     });
   }
 
@@ -16,16 +16,16 @@ export default class RuanganRepository {
     return prisma.ruangan.create({ data });
   }
 
-  public static async update(nama: string, data: PostRuanganType) {
+  public static async update(kode: string, data: PostRuanganType) {
     return prisma.ruangan.update({
-      where: { nama },
+      where: { kode },
       data,
     });
   }
 
-  public static async destroy(nama: string) {
+  public static async destroy(kode: string) {
     return prisma.ruangan.delete({
-      where: { nama },
+      where: { kode },
     });
   }
 }
