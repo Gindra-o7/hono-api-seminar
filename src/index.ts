@@ -5,6 +5,8 @@ import GlobalHandler from "./handlers/global.handler";
 import globalRoute from "./routes/global.route";
 import LogMiddleware from "./middlewares/log.middleware";
 import jadwalRoute from "./routes/jadwal.route";
+import tahunAjaranRoute from "./routes/tahun-ajaran.route";
+import ruanganRoute from "./routes/ruangan.route";
 
 // Init Hono Object and Load environment variables from .env file
 const app: Hono<BlankEnv, BlankSchema, "/"> = new Hono({
@@ -22,6 +24,8 @@ app.onError(GlobalHandler.error);
 // Load all available routes
 app.route("/", globalRoute);
 app.route("/", jadwalRoute);
+app.route("/", tahunAjaranRoute);
+app.route("/", ruanganRoute);
 
 export default {
   port: APP_PORT || 5000,
