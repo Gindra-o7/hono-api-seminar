@@ -1,8 +1,8 @@
 import JadwalRepository from "../repositories/jadwal.repository";
 import { APIError } from "../utils/api-error.util";
 import { PostJadwalType } from "../types/jadwal.type";
-import TahunAjaranRepository from "../repositories/tahun_ajaran.repository";
 import JadwalHelper from "../helpers/jadwal.helper";
+import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
 
 export default class JadwalService {
   public static async getMe(email: string) {
@@ -43,7 +43,7 @@ export default class JadwalService {
 
   public static async post(data: PostJadwalType) {
     const {
-      nama_ruangan,
+      kode_ruangan,
       waktu_mulai,
       waktu_selesai,
       nip_pembimbing_1,
@@ -54,7 +54,7 @@ export default class JadwalService {
     } = data;
 
     await JadwalHelper.cekKonflikRuangan(
-      nama_ruangan,
+      kode_ruangan,
       new Date(waktu_mulai),
       new Date(waktu_selesai)
     );
@@ -72,15 +72,10 @@ export default class JadwalService {
       new Date(waktu_mulai),
       new Date(waktu_selesai)
     );
-
-    const tahunAjaran = await TahunAjaranRepository.findSekarang();
-    if (!tahunAjaran) {
-      throw new APIError("Tahun ajaran aktif tidak ditemukan", 404);
-    }
-
+    
     const jadwal = await JadwalRepository.create({
       ...data,
-      kode_tahun_ajaran: tahunAjaran.kode,
+      kode_tahun_ajaran: TahunAjaranHelper.findSekarang(),
     });
 
     return {
