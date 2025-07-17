@@ -10,7 +10,7 @@ const jadwalRoute = new Hono({ router: new RegExpRouter() });
 
 jadwalRoute.use("/jadwal/*", AuthMiddleware.JWTBearerTokenExtraction);
 
-jadwalRoute.get("/jadwal/me", JadwalHandler.getMe);
+jadwalRoute.get("/me/jadwal", JadwalHandler.getMe);
 jadwalRoute.get("/jadwal", JadwalHandler.getAll);
 jadwalRoute.get("/jadwal/:id", JadwalHandler.get);
 jadwalRoute.post("/jadwal", zValidator("json", postJadwalSchema, zodError), JadwalHandler.post);
