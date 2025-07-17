@@ -3,18 +3,18 @@ import { APIError } from "../utils/api-error.util";
 
 export default class JadwalHelper {
   public static async cekKonflikRuangan(
-    nama_ruangan: string,
+    kode_ruangan: string,
     waktu_mulai: Date,
     waktu_selesai: Date
   ) {
     const konflik = await JadwalRepository.findKonflikRuangan(
-      nama_ruangan,
+      kode_ruangan,
       waktu_mulai,
       waktu_selesai
     );
     if (konflik) {
       throw new APIError(
-        `Konflik jadwal: Ruangan ${nama_ruangan} sudah digunakan pada waktu tersebut`,
+        `Konflik jadwal: Ruangan ${kode_ruangan} sudah digunakan pada waktu tersebut`,
         409
       );
     }
