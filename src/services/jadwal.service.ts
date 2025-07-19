@@ -6,7 +6,7 @@ import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
 
 export default class JadwalService {
   public static async getMe(email: string) {
-    const jadwal = await JadwalRepository.findMe(email);
+    const jadwal = await JadwalRepository.findMeByEmail(email);
     if (!jadwal) {
       throw new APIError("Jadwal tidak ditemukan", 404);
     }
