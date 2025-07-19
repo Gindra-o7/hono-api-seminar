@@ -8,8 +8,8 @@ export default class RuanganHandler {
   }
 
   public static async get(c: Context) {
-    const { nama } = c.req.param();
-    return c.json(await RuanganService.get(nama));
+    const { kode } = c.req.param();
+    return c.json(await RuanganService.get(kode));
   }
 
   public static async post(c: Context) {
@@ -18,13 +18,13 @@ export default class RuanganHandler {
   }
 
   public static async put(c: Context) {
-    const { nama } = c.req.param();
+    const { kode } = c.req.param();
     const body: PostRuanganType = await c.req.json();
-    return c.json(await RuanganService.put(nama, body));
+    return c.json(await RuanganService.put(kode, body));
   }
 
   public static async delete(c: Context) {
-    const { nama } = c.req.param();
-    return c.json(await RuanganService.delete(nama));
+    const { kode } = c.req.param();
+    return c.json(await RuanganService.delete(kode));
   }
 }
