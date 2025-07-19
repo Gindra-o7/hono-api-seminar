@@ -28,6 +28,9 @@ model dosen {
   // Relasi untuk mahasiswa PA
   nipSebagaiMahasiswaPA mahasiswa[] @relation("MahasiswaPA")
 
+  // Relasi untuk dosen penilai
+  nipSebagaiDosenPenilai penilaian[] @relation("Penilai")
+
   // Relasi untuk berbagai peran dalam jadwal  
   jadwalSebagaiPembimbing1 jadwal[] @relation("Pembimbing1")
   jadwalSebagaiPembimbing2 jadwal[] @relation("Pembimbing2")
@@ -91,15 +94,20 @@ model jadwal {
   nip_ketua_sidang String @db.VarChar(18)
   ketua_sidang     dosen  @relation("KetuaSidang", fields: [nip_ketua_sidang], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_ketua_sidang")
 
+  // Relasi dengan Penilaian
+  penilaian penilaian[] @relation("PenilaianJadwal")
+
   // Relasi dengan Tahun Ajaran
   kode_tahun_ajaran String @db.VarChar(5)
 }
 
 model komponen_penilaian {
-  id         String                   @id(map: "pk_id_komponen_penilaian") @db.VarChar(4)
+  id         String                   @id(map: "pk_id_komponen_penilaian") @db.VarChar(7)
   nama       String                   @db.VarChar(50)
   persentase Int                      @db.Integer
   penilai    PenilaiKomponenPenilaian
+
+  penilaian penilaian[] @relation("PenilaianKomponenPenilaian")
 }
 
 enum PenilaiKomponenPenilaian {
@@ -109,9 +117,17 @@ enum PenilaiKomponenPenilaian {
 }
 
 model penilaian {
-  id_jadwal             String    @db.Uuid
-  id_komponen_penilaian String    @db.VarChar(4)
-  nilai                 Int       @db.Integer
+  id_jadwal             String @db.Uuid
+  id_komponen_penilaian String @db.VarChar(7)
+  nilai                 Int    @db.Integer
+
+  // Foreign Key ke dosen
+  nip       String @db.VarChar(18)
+  nip_dosen dosen  @relation("Penilai", fields: [nip], references: [nip], onDelete: NoAction, onUpdate: Cascade)
+
+  // Relasi dengan Jadwal dan Komponen Penilaian
+  jadwal             jadwal             @relation("PenilaianJadwal", fields: [id_jadwal], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  komponen_penilaian komponen_penilaian @relation("PenilaianKomponenPenilaian", fields: [id_komponen_penilaian], references: [id], onDelete: NoAction, onUpdate: Cascade)
 
   // Definisikan composite primary key di sini
   @@id([id_jadwal, id_komponen_penilaian], map: "pk_penilaian")
