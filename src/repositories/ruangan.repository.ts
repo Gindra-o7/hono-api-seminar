@@ -6,9 +6,9 @@ export default class RuanganRepository {
     return prisma.ruangan.findMany();
   }
 
-  public static async findByName(nama: string) {
+  public static async findByKode(kode: string) {
     return prisma.ruangan.findFirst({
-      where: { nama: nama },
+      where: { kode },
     });
   }
 
