@@ -12,7 +12,7 @@ export default class JadwalRepository {
     });
   }
 
-  public static async findMe(email: string) {
+  public static async findMeByEmail(email: string) {
     return prisma.jadwal.findMany({
       where: {
         OR: [
