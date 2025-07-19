@@ -12,10 +12,10 @@ export default class RuanganService {
     };
   }
 
-  public static async get(nama: string) {
-    const ruangan = await RuanganRepository.findByName(nama);
+  public static async get(kode: string) {
+    const ruangan = await RuanganRepository.findByKode(kode);
     if (!ruangan) {
-      throw new APIError(`Ruangan dengan nama ${nama} tidak ditemukan`, 404);
+      throw new APIError(`Ruangan dengan nama ${kode} tidak ditemukan`, 404);
     }
     return {
       response: true,
@@ -25,7 +25,7 @@ export default class RuanganService {
   }
 
   public static async post(data: PostRuanganType) {
-    const existingRuangan = await RuanganRepository.findByName(data.nama);
+    const existingRuangan = await RuanganRepository.findByKode(data.kode);
     if (existingRuangan) {
       throw new APIError(`Ruangan dengan nama ${data.nama} sudah ada`, 409);
     }
@@ -48,9 +48,9 @@ export default class RuanganService {
     };
   }
 
-  public static async delete(nama: string) {
-    await this.get(nama);
-    await RuanganRepository.destroy(nama);
+  public static async delete(kode: string) {
+    await this.get(kode);
+    await RuanganRepository.destroy(kode);
     return {
       response: true,
       message: "Ruangan berhasil dihapus",
