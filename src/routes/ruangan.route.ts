@@ -11,9 +11,9 @@ const ruanganRoute = new Hono({ router: new RegExpRouter() });
 ruanganRoute.use("/ruangan/*", AuthMiddleware.JWTBearerTokenExtraction);
 
 ruanganRoute.get("/ruangan", RuanganHandler.getAll);
-ruanganRoute.get("/ruangan/:nama", RuanganHandler.get);
+ruanganRoute.get("/ruangan/:kode", RuanganHandler.get);
 ruanganRoute.post("/ruangan", zValidator("json", postRuanganSchema, zodError), RuanganHandler.post);
-ruanganRoute.put("/ruangan/:nama", zValidator("json", postRuanganSchema, zodError), RuanganHandler.put);
-ruanganRoute.delete("/ruangan/:nama", RuanganHandler.delete);
+ruanganRoute.put("/ruangan/:kode", zValidator("json", postRuanganSchema, zodError), RuanganHandler.put);
+ruanganRoute.delete("/ruangan/:kode", RuanganHandler.delete);
 
 export default ruanganRoute;
