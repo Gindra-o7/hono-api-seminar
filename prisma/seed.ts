@@ -79,6 +79,91 @@ async function main() {
 			: "Data was inserted previously, no new data inserted."
 	);
 
+	const resultKomponenPenilaian = await prisma.komponen_penilaian.createMany({
+		data: [
+			{ 
+				id: "KP-A-01",
+				nama: "Kemampuan Penyelesaian Masalah",
+				persentase: 40,
+				penilai: "KP_PEMBIMBING"
+			},
+			{ 
+				id: "KP-A-02",
+				nama: "Keaktifan Bimbingan dan Sikap",
+				persentase: 35,
+				penilai: "KP_PEMBIMBING"
+			},
+			{ 
+				id: "KP-A-03",
+				nama: "Kualitas Laporan KP",
+				persentase: 25,
+				penilai: "KP_PEMBIMBING"
+			},
+			{ 
+				id: "KP-B-01",
+				nama: "Penguasaan Materi",
+				persentase: 40,
+				penilai: "KP_PENGUJI"
+			},
+			{ 
+				id: "KP-B-02",
+				nama: "Teknik Presentasi",
+				persentase: 20,
+				penilai: "KP_PENGUJI"
+			},
+			{ 
+				id: "KP-B-03",
+				nama: "Kesesuaian Laporan dan Presentasi",
+				persentase: 40,
+				penilai: "KP_PENGUJI"
+			},
+			{ 
+				id: "KP-C-01",
+				nama: "Deliverables",
+				persentase: 15,
+				penilai: "KP_INSTANSI"
+			},
+			{ 
+				id: "KP-C-02",
+				nama: "Ketepatan Waktu",
+				persentase: 10,
+				penilai: "KP_INSTANSI"
+			},
+			{ 
+				id: "KP-C-03",
+				nama: "Kedisiplinan",
+				persentase: 15,
+				penilai: "KP_INSTANSI"
+			},
+			{ 
+				id: "KP-C-04",
+				nama: "Attitude",
+				persentase: 15,
+				penilai: "KP_INSTANSI"
+			},
+			{ 
+				id: "KP-C-05",
+				nama: "Kerjasama Tim",
+				persentase: 25,
+				penilai: "KP_INSTANSI"
+			},
+			{ 
+				id: "KP-C-06",
+				nama: "Inisiatif",
+				persentase: 20,
+				penilai: "KP_INSTANSI"
+			},
+		],
+		skipDuplicates: true,
+	});
+
+	console.log(
+		"[DEBUG] Result of inserted komponen_penilaian createMany:",
+		resultKomponenPenilaian.count > 0
+			? resultKomponenPenilaian
+			: "Data was inserted previously, no new data inserted."
+	);
+
 }
 
 main()
