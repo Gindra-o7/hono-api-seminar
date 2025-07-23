@@ -10,5 +10,4 @@ export default class TahunAjaranHelper {
         const semester = parseInt(code.slice(4));
         return `${tahun}/${tahun + 1} ${semester === 1 ? "Ganjil" : "Genap"}`;
     }
-
 }
