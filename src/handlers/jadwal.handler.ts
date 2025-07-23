@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import JadwalService from "../services/jadwal.service";
 import { APIError } from "../utils/api-error.util";
+import { JenisJadwal } from "../generated/prisma";
 
 export default class JadwalHandler {
 	public static async getMe(c: Context) {
@@ -10,7 +11,8 @@ export default class JadwalHandler {
 	}
 
 	public static async getAll(c: Context) {
-		return c.json(await JadwalService.getAll());
+		const { jenis } = c.req.query()
+		return c.json(await JadwalService.getAll(jenis as JenisJadwal));
 	}
 
 	public static async get(c: Context) {
