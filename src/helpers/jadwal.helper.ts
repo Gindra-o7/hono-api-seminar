@@ -1,7 +1,15 @@
+import { JenisJadwal } from "../generated/prisma";
 import JadwalRepository from "../repositories/jadwal.repository";
 import { APIError } from "../utils/api-error.util";
+import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
+  public static generateJadwalId(jenis: JenisJadwal) {
+    const tahunAjaran = TahunAjaranHelper.findSekarang();
+    const uniqueId = crypto.randomUUID();
+    return `${jenis}-${tahunAjaran}-${uniqueId}`;
+  }
+
   public static async cekKonflikRuangan(
     kode_ruangan: string,
     waktu_mulai: Date,
@@ -33,6 +41,29 @@ export default class JadwalHelper {
     if (konflik) {
       throw new APIError(
         `Konflik jadwal: Salah satu dosen sudah memiliki jadwal pada waktu tersebut`,
+        409
+      );
+    }
+  }
+
+  public static async cekDosen(
+    nip_pembimbing_1: string,
+    nip_pembimbing_2: string | undefined,
+    nip_penguji_1: string,
+    nip_penguji_2: string | undefined
+  ) {
+    const pembimbingNips = [nip_pembimbing_1, nip_pembimbing_2].filter(
+      (nip) => nip !== undefined
+    );
+    const pengujiNips = [nip_penguji_1, nip_penguji_2].filter(
+      (nip) => nip !== undefined
+    );
+    const isConflict = pembimbingNips.some((pembimbing) =>
+      pengujiNips.includes(pembimbing)
+    );
+    if (isConflict) {
+      throw new APIError(
+        `Konflik jadwal: Salah satu dosen sudah menjadi pembimbing dan penguji`,
         409
       );
     }
