@@ -28,4 +28,22 @@ export default class RuanganRepository {
       where: { kode },
     });
   }
+
+  public static async findKonflik(kode_ruangan: string, waktu_mulai: Date, waktu_selesai: Date) {
+    return await prisma.jadwal.findFirst({
+      where: {
+        kode_ruangan,
+        OR: [
+          {
+            waktu_mulai: {
+              lt: waktu_selesai,
+            },
+            waktu_selesai: {
+              gt: waktu_mulai,
+            },
+          },
+        ],
+      },
+    });
+  }
 }
