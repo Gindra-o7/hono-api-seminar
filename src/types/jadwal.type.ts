@@ -1,6 +1,7 @@
 import { JenisJadwal } from "../generated/prisma";
 
 export interface PostJadwalType {
+  id: string;
   tanggal: Date;
   waktu_mulai: Date;
   waktu_selesai: Date;
