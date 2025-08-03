@@ -60,7 +60,7 @@ model ruangan {
 }
 
 model jadwal {
-  id            String      @id(map: "pk_id_jadwal") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id            String      @id(map: "pk_id_jadwal") @db.VarChar(14)
   tanggal       DateTime    @db.Date
   waktu_mulai   DateTime    @db.Timestamp()
   waktu_selesai DateTime    @db.Timestamp()
@@ -117,7 +117,7 @@ enum PenilaiKomponenPenilaian {
 }
 
 model penilaian {
-  id_jadwal             String @db.Uuid
+  id_jadwal             String @db.VarChar(14)
   id_komponen_penilaian String @db.VarChar(7)
   nilai                 Int    @db.Integer
 
