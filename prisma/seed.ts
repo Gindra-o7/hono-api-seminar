@@ -5,43 +5,6 @@ console.log("[INFO] Seeding database...");
 async function main() {
 	console.log("[DEBUG] Running createMany...");
 
-	const resultDosen = await prisma.dosen.createMany({
-		data: [
-			{
-				nip: "198804262019032009",
-				nama: "Iis Afrianty, S.T., M.Sc.,",
-				email: "iis.afrianty@uin-suska.ac.id",
-			},
-		],
-		skipDuplicates: true,
-	});
-
-	console.log(
-		"[DEBUG] Result of inserted dosen createMany:",
-		resultDosen.count > 0
-			? resultDosen
-			: "Data was inserted previously, no new data inserted."
-	);
-
-	const resultMahasiswa = await prisma.mahasiswa.createMany({
-		data: [
-			{
-				nim: "12250113521",
-				nama: "M. Farhan Aulia Pratama",
-				email: "12250113521@students.uin-suska.ac.id",
-				nip: "198804262019032009"
-			},
-		],
-		skipDuplicates: true,
-	});
-
-	console.log(
-		"[DEBUG] Result of inserted mahasiswa createMany:",
-		resultMahasiswa.count > 0
-			? resultMahasiswa
-			: "Data was inserted previously, no new data inserted."
-	);
-
 	const resultRuangan = await prisma.ruangan.createMany({
 		data: [
 			{ 
