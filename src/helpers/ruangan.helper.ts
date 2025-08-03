@@ -1,4 +1,3 @@
-import prisma from "../infrastructures/db.infrastructure";
 import RuanganRepository from "../repositories/ruangan.repository";
 import { APIError } from "../utils/api-error.util";
 
