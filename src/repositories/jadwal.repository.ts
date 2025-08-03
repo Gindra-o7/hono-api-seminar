@@ -1,92 +1,67 @@
 import prisma from "../infrastructures/db.infrastructure";
 import { PostJadwalType } from "../types/jadwal.type";
+import { JenisJadwal } from "../generated/prisma";
 
 export default class JadwalRepository {
-  public static async findAll() {
-    return prisma.jadwal.findMany();
+  public static async findAll(jenis?: JenisJadwal) {
+    return await prisma.jadwal.findMany({
+      where: {
+        ...(jenis && { jenis }),
+      },
+      include: {
+        penilaian: true,
+      },
+    });
   }
 
   public static async findById(id: string) {
-    return prisma.jadwal.findUnique({
+    return await prisma.jadwal.findUnique({
       where: { id },
+      include: {
+        penilaian: true,
+      },
     });
   }
 
   public static async findMeByEmail(email: string) {
-    return prisma.jadwal.findMany({
+    return await prisma.jadwal.findMany({
       where: {
-        OR: [
-          { mahasiswa: { email } },
-          { pembimbing_1: { email } },
-          { pembimbing_2: { email } },
-          { penguji_1: { email } },
-          { penguji_2: { email } },
-          { ketua_sidang: { email } },
-        ],
+        OR: [{ mahasiswa: { email } }, { pembimbing_1: { email } }, { pembimbing_2: { email } }, { penguji_1: { email } }, { penguji_2: { email } }, { ketua_sidang: { email } }],
       },
-    });
-  }
-
-  public static async findKonflikRuangan(
-    kode_ruangan: string,
-    waktu_mulai: Date,
-    waktu_selesai: Date
-  ) {
-    return prisma.jadwal.findFirst({
-      where: {
-        kode_ruangan,
-        OR: [
-          {
-            waktu_mulai: {
-              lt: waktu_selesai,
-            },
-            waktu_selesai: {
-              gt: waktu_mulai,
-            },
-          },
-        ],
-      },
-    });
-  }
-
-  public static async findKonflikDosen(
-    nips: string[],
-    waktu_mulai: Date,
-    waktu_selesai: Date
-  ) {
-    return prisma.jadwal.findFirst({
-      where: {
-        OR: [
-          { nip_pembimbing_1: { in: nips } },
-          { nip_pembimbing_2: { in: nips } },
-          { nip_penguji_1: { in: nips } },
-          { nip_penguji_2: { in: nips } },
-          { nip_ketua_sidang: { in: nips } },
-        ],
-        AND: [
-          {
-            waktu_mulai: {
-              lt: waktu_selesai,
-            },
-            waktu_selesai: {
-              gt: waktu_mulai,
-            },
-          },
-        ],
+      include: {
+        penilaian: true,
       },
     });
   }
 
   public static async create(data: PostJadwalType) {
-    return prisma.jadwal.create({
+    return await prisma.jadwal.create({
       data,
     });
   }
 
   public static async update(id: string, data: PostJadwalType) {
-    return prisma.jadwal.update({
+    return await prisma.jadwal.update({
       where: { id },
       data,
     });
+  }
+
+  public static async findLastId(jenis: JenisJadwal, tahunAjaran: string): Promise<string | null> {
+    const lastJadwal = await prisma.jadwal.findFirst({
+      where: {
+        jenis: jenis,
+        id: {
+          startsWith: `${jenis}-${tahunAjaran}`,
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+      select: {
+        id: true,
+      },
+    });
+    return lastJadwal ? lastJadwal.id : null;
   }
 }
