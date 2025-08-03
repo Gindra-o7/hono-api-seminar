@@ -1,3 +1,4 @@
+import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
 import MahasiswaRepository from "../repositories/mahasiswa.repository";
 import { APIError } from "../utils/api-error.util";
 
@@ -14,14 +15,29 @@ export default class MahasiswaService {
 		};
 	}
 	public static async getAll() {
-		const mahasiswa = await MahasiswaRepository.findAll();
-		if (!mahasiswa) {
-			throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
+		const allMahasiswa = await MahasiswaRepository.findAll();
+		if (!allMahasiswa) {
+			throw new APIError(`Tidak ada data mahasiswa`, 404);
 		}
+
+		const tahunAjaranSekarang = TahunAjaranHelper.findSekarang()
+		const tahunSekarang = parseInt(tahunAjaranSekarang.slice(0, 4));
+		const semesterSekarang = parseInt(tahunAjaranSekarang.slice(4))
+
+		const filteredMahasiswa = allMahasiswa.filter(m => {
+			const angkatan = parseInt(`20${m.nim.slice(3, 5)}`);
+			const semester = (tahunSekarang - angkatan) * 2 + semesterSekarang;
+			return semester >= 6;
+		});
+
+		if (filteredMahasiswa.length === 0) {
+			throw new APIError(`Tidak ada mahasiswa di semester 6 atau lebih.`, 404);
+		}
+
 		return {
 			response: true,
 			message: "Data semua mahasiswa berhasil diambil! 😁",
-			data: mahasiswa,
+			data: filteredMahasiswa,
 		};
 	}
     public static async get(nim: string) {
@@ -32,39 +48,6 @@ export default class MahasiswaService {
 		return {
 			response: true,
 			message: "Data mahasiswa berhasil diambil! 😁",
-			data: mahasiswa,
-		};
-	}
-    public static async post(nim: string, nama: string, email: string, nip: string) {
-		const mahasiswa = await MahasiswaRepository.create(nim, nama, email, nip);
-		if (!mahasiswa) {
-			throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
-		}
-		return {
-			response: true,
-			message: "Data mahasiswa berhasil diubah! 😁",
-			data: mahasiswa,
-		};
-	}
-    public static async put(nim: string, nama: string, email: string, nip: string) {
-		const mahasiswa = await MahasiswaRepository.update(nim, nama, email, nip);
-		if (!mahasiswa) {
-			throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
-		}
-		return {
-			response: true,
-			message: "Data mahasiswa berhasil diperbarui! 😁",
-			data: mahasiswa,
-		};
-	}
-    public static async delete(nim: string) {
-		const mahasiswa = await MahasiswaRepository.destroy(nim);
-		if (!mahasiswa) {
-			throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
-		}
-		return {
-			response: true,
-			message: "Data mahasiswa berhasil dihapus! 😁",
 			data: mahasiswa,
 		};
 	}
