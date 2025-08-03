@@ -1,8 +1,5 @@
 import { JenisJadwal } from "../generated/prisma";
-import DosenRepository from "../repositories/dosen.repository";
 import JadwalRepository from "../repositories/jadwal.repository";
-import RuanganRepository from "../repositories/ruangan.repository";
-import { APIError } from "../utils/api-error.util";
 import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
@@ -13,8 +10,9 @@ export default class JadwalHelper {
   // }
 
   public static async generateId(jenis: JenisJadwal): Promise<string> {
+    const singkatan = this.singkatanJenis(jenis);
     const tahunAjaran = TahunAjaranHelper.findSekarang();
-    const prefix = `${jenis}-${tahunAjaran}-`;
+    const prefix = `J${singkatan}${tahunAjaran}`;
 
     const lastId = await JadwalRepository.findLastId(jenis, tahunAjaran);
 
@@ -28,5 +26,17 @@ export default class JadwalHelper {
     }
     const uniqueId = nextNumber.toString().padStart(3, "0");
     return `${prefix}${uniqueId}`;
+  }
+
+  public static singkatanJenis(jenis: JenisJadwal): string {
+    const pemetaan = {
+      [JenisJadwal.SEMKP]: "KP",
+      [JenisJadwal.SEMPRO]: "TAPRO",
+      [JenisJadwal.SEMHAS_LAPORAN]: "TAHLP",
+      [JenisJadwal.SEMHAS_PAPERBASED]: "TAHPB",
+      [JenisJadwal.SIDANG_TA_LAPORAN]: "TASLP",
+      [JenisJadwal.SIDANG_TA_PAPERBASED]: "TASPB",
+    };
+    return pemetaan[jenis] || "JNS";
   }
 }
