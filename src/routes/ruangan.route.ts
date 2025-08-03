@@ -8,7 +8,7 @@ import AuthMiddleware from "../middlewares/auth.middleware";
 
 const ruanganRoute = new Hono({ router: new RegExpRouter() });
 
-ruanganRoute.use("/ruangan/*", AuthMiddleware.JWTBearerTokenExtraction);
+ruanganRoute.use("/ruangan*", AuthMiddleware.JWTBearerTokenExtraction);
 
 ruanganRoute.get("/ruangan", RuanganHandler.getAll);
 ruanganRoute.get("/ruangan/:kode", RuanganHandler.get);
