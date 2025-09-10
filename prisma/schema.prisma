@@ -91,8 +91,8 @@ model jadwal {
   penguji_2     dosen?  @relation("Penguji2", fields: [nip_penguji_2], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_penguji_2")
 
   // Relasi dengan dosen sebagai Ketua Sidang
-  nip_ketua_sidang String @db.VarChar(18)
-  ketua_sidang     dosen  @relation("KetuaSidang", fields: [nip_ketua_sidang], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_ketua_sidang")
+  nip_ketua_sidang String? @db.VarChar(18)
+  ketua_sidang     dosen?  @relation("KetuaSidang", fields: [nip_ketua_sidang], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_ketua_sidang")
 
   // Relasi dengan Penilaian
   penilaian penilaian[] @relation("PenilaianJadwal")
