@@ -12,6 +12,6 @@ export interface PostJadwalType {
   nip_pembimbing_2?: string;
   nip_penguji_1: string;
   nip_penguji_2?: string;
-  nip_ketua_sidang: string;
+  nip_ketua_sidang?: string;
   kode_tahun_ajaran: string;
 }
