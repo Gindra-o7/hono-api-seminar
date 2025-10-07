@@ -17,20 +17,4 @@ export default class MahasiswaHandler {
         const { nim } = c.req.param();
 		return c.json(await MahasiswaService.get(nim));
 	}
-
-    public static async post(c: Context) {
-        const { nim, nama, email, nip } = await c.req.json();
-		return c.json(await MahasiswaService.post(nim, nama, email, nip));
-	}
-
-    public static async put(c: Context) {
-        const { nim } = c.req.param();
-        const { nama, email, nip } = await c.req.json();
-		return c.json(await MahasiswaService.put(nim, nama, email, nip));
-	}
-
-    public static async delete(c: Context) {
-        const { nim } = c.req.param();
-		return c.json(await MahasiswaService.delete(nim));
-	}
 }

@@ -25,7 +25,7 @@ export default class MahasiswaService {
 		const semesterSekarang = parseInt(tahunAjaranSekarang.slice(4))
 
 		const filteredMahasiswa = allMahasiswa.filter(m => {
-			const angkatan = parseInt(`20${m.nim.slice(3, 5)}`);
+			const angkatan = parseInt(`20${m.nim.slice(1, 3)}`);
 			const semester = (tahunSekarang - angkatan) * 2 + semesterSekarang;
 			return semester >= 6;
 		});
