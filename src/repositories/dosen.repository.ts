@@ -1,6 +1,9 @@
 import prisma from "../infrastructures/db.infrastructure";
 
 export default class DosenRepository {
+  public static async findAll() {
+    return prisma.dosen.findMany();
+  }
   public static async findKonflik(nip: string[], waktu_mulai: Date, waktu_selesai: Date) {
     return await prisma.jadwal.findFirst({
       where: {
