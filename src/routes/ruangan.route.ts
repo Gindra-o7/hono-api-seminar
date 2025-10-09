@@ -8,12 +8,10 @@ import AuthMiddleware from "../middlewares/auth.middleware";
 
 const ruanganRoute = new Hono({ router: new RegExpRouter() });
 
-ruanganRoute.use("/ruangan*", AuthMiddleware.JWTBearerTokenExtraction);
-
-ruanganRoute.get("/ruangan", RuanganHandler.getAll);
-ruanganRoute.get("/ruangan/:kode", RuanganHandler.get);
-ruanganRoute.post("/ruangan", zValidator("json", postRuanganSchema, zodError), RuanganHandler.post);
-ruanganRoute.put("/ruangan/:kode", zValidator("json", postRuanganSchema, zodError), RuanganHandler.put);
-ruanganRoute.delete("/ruangan/:kode", RuanganHandler.delete);
+ruanganRoute.get("/ruangan", AuthMiddleware.JWTBearerTokenExtraction, RuanganHandler.getAll);
+ruanganRoute.get("/ruangan/:kode", AuthMiddleware.JWTBearerTokenExtraction, RuanganHandler.get);
+ruanganRoute.post("/ruangan", AuthMiddleware.JWTBearerTokenExtraction, zValidator("json", postRuanganSchema, zodError), RuanganHandler.post);
+ruanganRoute.put("/ruangan/:kode", AuthMiddleware.JWTBearerTokenExtraction, zValidator("json", postRuanganSchema, zodError), RuanganHandler.put);
+ruanganRoute.delete("/ruangan/:kode", AuthMiddleware.JWTBearerTokenExtraction, RuanganHandler.delete);
 
 export default ruanganRoute;

@@ -45,34 +45,15 @@ export default class JadwalService {
   }
 
   public static async post(data: PostJadwalType) {
-    await RuanganHelper.cekKonflik(
-      data.kode_ruangan, 
-      new Date(data.waktu_mulai), 
-      new Date(data.waktu_selesai)
-    );
+    await RuanganHelper.cekKonflik(data.kode_ruangan, new Date(data.waktu_mulai), new Date(data.waktu_selesai));
 
-    const nips = [
-      data.nip_pembimbing_1, 
-      data.nip_pembimbing_2, 
-      data.nip_penguji_1, 
-      data.nip_penguji_2, 
-      data.nip_ketua_sidang
-    ].filter((nip) => nip !== undefined) as string[];
+    const nips = [data.nip_pembimbing_1, data.nip_pembimbing_2, data.nip_penguji_1, data.nip_penguji_2, data.nip_ketua_sidang].filter((nip) => nip !== undefined) as string[];
 
-    await DosenHelper.cekKonflik(
-      nips, 
-      new Date(data.waktu_mulai), 
-      new Date(data.waktu_selesai)
-    );
+    await DosenHelper.cekKonflik(nips, new Date(data.waktu_mulai), new Date(data.waktu_selesai));
 
-    await DosenHelper.cekRole(
-      data.nip_pembimbing_1, 
-      data.nip_pembimbing_2, 
-      data.nip_penguji_1, 
-      data.nip_penguji_2
-    );
+    await DosenHelper.cekRole(data.nip_pembimbing_1, data.nip_pembimbing_2, data.nip_penguji_1, data.nip_penguji_2);
 
-    const id = await JadwalHelper.generateId(data.jenis);
+    const id = JadwalHelper.generateId(data.jenis);
     const kode_tahun_ajaran = TahunAjaranHelper.findSekarang();
 
     const { id: _, ...dataWithoutId } = data;
@@ -92,32 +73,13 @@ export default class JadwalService {
   public static async put(id: string, data: PostJadwalType) {
     await this.get(id);
 
-    await RuanganHelper.cekKonflik(
-      data.kode_ruangan, 
-      new Date(data.waktu_mulai), 
-      new Date(data.waktu_selesai)
-    );
+    await RuanganHelper.cekKonflik(data.kode_ruangan, new Date(data.waktu_mulai), new Date(data.waktu_selesai));
 
-    const nips = [
-      data.nip_pembimbing_1, 
-      data.nip_pembimbing_2, 
-      data.nip_penguji_1, 
-      data.nip_penguji_2, 
-      data.nip_ketua_sidang
-    ].filter((nip) => nip !== undefined) as string[];
+    const nips = [data.nip_pembimbing_1, data.nip_pembimbing_2, data.nip_penguji_1, data.nip_penguji_2, data.nip_ketua_sidang].filter((nip) => nip !== undefined) as string[];
 
-    await DosenHelper.cekKonflik(
-      nips, 
-      new Date(data.waktu_mulai), 
-      new Date(data.waktu_selesai)
-    );
+    await DosenHelper.cekKonflik(nips, new Date(data.waktu_mulai), new Date(data.waktu_selesai));
 
-    await DosenHelper.cekRole(
-      data.nip_pembimbing_1, 
-      data.nip_pembimbing_2, 
-      data.nip_penguji_1, 
-      data.nip_penguji_2
-    );
+    await DosenHelper.cekRole(data.nip_pembimbing_1, data.nip_pembimbing_2, data.nip_penguji_1, data.nip_penguji_2);
 
     const jadwal = await JadwalRepository.update(id, data);
     return {

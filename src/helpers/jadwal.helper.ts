@@ -3,12 +3,6 @@ import JadwalRepository from "../repositories/jadwal.repository";
 import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
-  // public static generateId(jenis: JenisJadwal) {
-  //   const tahunAjaran = TahunAjaranHelper.findSekarang();
-  //   const uniqueId = crypto.randomUUID();
-  //   return `${jenis}-${tahunAjaran}-${uniqueId}`;
-  // }
-
   public static async generateId(jenis: JenisJadwal): Promise<string> {
     const singkatan = this.singkatanJenis(jenis);
     const tahunAjaran = TahunAjaranHelper.findSekarang();
@@ -39,4 +33,22 @@ export default class JadwalHelper {
     };
     return pemetaan[jenis] || "JNS";
   }
+
+  // public static convertJadwalTime(jadwal: any[]) {
+  //   const timezone = "Asia/Jakarta";
+  //   const options: Intl.DateTimeFormatOptions = {
+  //     timezone,
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     second: "2-digit",
+  //   };
+  //   return jadwal.map((j) => ({
+  //     ...j,
+  //     waktu_mulai: new Date(j.waktu_mulai).toLocaleTimeString("id-ID", options),
+  //     waktu_selesai: new Date(j.waktu_selesai).toLocaleTimeString("id-ID", options),
+  //   }));
+  // }
 }

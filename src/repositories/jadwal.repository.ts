@@ -1,11 +1,13 @@
 import prisma from "../infrastructures/db.infrastructure";
 import { PostJadwalType } from "../types/jadwal.type";
 import { JenisJadwal } from "../generated/prisma";
+import JadwalHelper from "../helpers/jadwal.helper";
 
 export default class JadwalRepository {
-  public static async findAll(jenis?: JenisJadwal) {
+  public static async findAll(kode_tahun_ajaran: string, jenis?: JenisJadwal) {
     return await prisma.jadwal.findMany({
       where: {
+        kode_tahun_ajaran,
         ...(jenis && { jenis }),
       },
       include: {
@@ -35,50 +37,8 @@ export default class JadwalRepository {
   }
 
   public static async create(data: PostJadwalType) {
-    const {
-      nim,
-      kode_ruangan,
-      nip_pembimbing_1,
-      nip_pembimbing_2,
-      nip_penguji_1,
-      nip_penguji_2,
-      nip_ketua_sidang,
-      ...restOfData
-    } = data;
-
     return await prisma.jadwal.create({
-      data: {
-        ...restOfData,
-        // 2. Hubungkan semua relasi secara eksplisit
-        mahasiswa: {
-          connect: { nim: nim },
-        },
-        ruangan: {
-          connect: { kode: kode_ruangan },
-        },
-        pembimbing_1: {
-          connect: { nip: nip_pembimbing_1 },
-        },
-        // Hubungkan relasi opsional hanya jika NIP-nya ada
-        ...(nip_pembimbing_2 && {
-          pembimbing_2: {
-            connect: { nip: nip_pembimbing_2 },
-          },
-        }),
-        penguji_1: {
-          connect: { nip: nip_penguji_1 },
-        },
-        ...(nip_penguji_2 && {
-          penguji_2: {
-            connect: { nip: nip_penguji_2 },
-          },
-        }),
-        ...(nip_ketua_sidang && {
-          ketua_sidang: {
-            connect: { nip: nip_ketua_sidang },
-          },
-        }),
-      },
+      data,
     });
   }
 
@@ -90,11 +50,12 @@ export default class JadwalRepository {
   }
 
   public static async findLastId(jenis: JenisJadwal, tahunAjaran: string): Promise<string | null> {
+    const singkatan = JadwalHelper.singkatanJenis(jenis);
     const lastJadwal = await prisma.jadwal.findFirst({
       where: {
         jenis: jenis,
         id: {
-          startsWith: `${jenis}-${tahunAjaran}`,
+          startsWith: `J${singkatan}${tahunAjaran}`,
         },
       },
       orderBy: {

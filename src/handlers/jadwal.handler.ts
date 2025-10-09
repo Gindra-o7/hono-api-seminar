@@ -4,31 +4,36 @@ import { APIError } from "../utils/api-error.util";
 import { JenisJadwal } from "../generated/prisma";
 
 export default class JadwalHandler {
-	public static async getMe(c: Context) {
-		const { email } = c.get("user");
-		if (!email) throw new APIError("Waduh, email kamu kosong cuy! 😭", 404);
-		return c.json(await JadwalService.getMe(email));
-	}
+  public static async getMe(c: Context) {
+    const userPayload = c.get("user");
+    if (!userPayload || typeof userPayload !== "object" || !("email" in userPayload)) {
+      throw new APIError("Informasi otentikasi tidak ditemukan atau tidak valid.", 401);
+    }
 
-	public static async getAll(c: Context) {
-		const { jenis } = c.req.query()
-		return c.json(await JadwalService.getAll(jenis as JenisJadwal));
-	}
+    const email = userPayload.email as string;
+    if (!email) throw new APIError("Email tidak ditemukan", 404);
+    return c.json(await JadwalService.getMe(email));
+  }
 
-	public static async get(c: Context) {
-		const { id } = c.req.param();
-		return c.json(await JadwalService.get(id));
-	}
+  public static async getAll(c: Context) {
+    const { jenis } = c.req.query();
+    return c.json(await JadwalService.getAll(jenis as JenisJadwal));
+  }
 
-	public static async post(c: Context) {
-		const data = await c.req.json();
+  public static async get(c: Context) {
+    const { id } = c.req.param();
+    return c.json(await JadwalService.get(id));
+  }
 
-		return c.json(await JadwalService.post(data), 201);
-	}
+  public static async post(c: Context) {
+    const data = await c.req.json();
 
-	public static async put(c: Context) {
-		const { id } = c.req.param();
-		const body = await c.req.json();
-		return c.json(await JadwalService.put(id, body));
-	}
+    return c.json(await JadwalService.post(data), 201);
+  }
+
+  public static async put(c: Context) {
+    const { id } = c.req.param();
+    const body = await c.req.json();
+    return c.json(await JadwalService.put(id, body));
+  }
 }
