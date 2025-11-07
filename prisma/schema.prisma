@@ -62,8 +62,8 @@ model ruangan {
 model jadwal {
   id            String      @id(map: "pk_id_jadwal") @db.VarChar(14)
   tanggal       DateTime    @db.Date
-  waktu_mulai   DateTime    @db.Timestamp()
-  waktu_selesai DateTime    @db.Timestamp()
+  waktu_mulai   DateTime    @db.Timestamptz
+  waktu_selesai DateTime    @db.Timestamptz
   jenis         JenisJadwal
 
   // Relasi dengan Mahasiswa
@@ -105,15 +105,24 @@ model komponen_penilaian {
   id         String                   @id(map: "pk_id_komponen_penilaian") @db.VarChar(7)
   nama       String                   @db.VarChar(50)
   persentase Int                      @db.Integer
+  is_aktif   Boolean                  @db.Boolean
   penilai    PenilaiKomponenPenilaian
 
   penilaian penilaian[] @relation("PenilaianKomponenPenilaian")
 }
 
 enum PenilaiKomponenPenilaian {
+  // role penilai kerja praktik
   KP_INSTANSI
   KP_PEMBIMBING
   KP_PENGUJI
+
+  // role penilai tugas akhir
+  TA_PEMBIMBING_1
+  TA_PEMBIMBING_2
+  TA_PENGUJI_1
+  TA_PENGUJI_2
+  TA_KETUA_SIDANG
 }
 
 model penilaian {
@@ -131,4 +140,62 @@ model penilaian {
 
   // Definisikan composite primary key di sini
   @@id([id_jadwal, id_komponen_penilaian], map: "pk_penilaian")
+}
+
+enum LogActionType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum LogActorType {
+  KOORDINATOR
+  DOSEN
+  MAHASISWA
+}
+
+// Model untuk mencatat log perubahan pada JADWAL
+model log_jadwal {
+  id        String    @id @default(cuid())
+  timestamp DateTime  @default(now())
+  action    LogActionType
+
+  // Siapa yang melakukan perubahan
+  actor_type LogActorType
+  actor_id   String
+
+  // ID dari jadwal yang berubah
+  jadwal_id String
+
+  // Data lama dan data baru disimpan sebagai JSON
+  // 'old_values' kosong saat CREATE
+  // 'new_values' kosong saat DELETE
+  old_values Json?
+  new_values Json?
+
+  @@index([jadwal_id])
+  @@index([actor_id])
+}
+
+// Model untuk mencatat log perubahan pada PENILAIAN
+model log_penilaian {
+  id        String    @id @default(cuid())
+  timestamp DateTime  @default(now())
+  action    LogActionType
+
+  // Siapa yang melakukan perubahan
+  actor_type LogActorType
+  actor_id   String // NIP Dosen yang memberi/mengubah nilai
+
+  // Kunci komposit dari tabel penilaian
+  id_jadwal             String
+  id_komponen_penilaian String
+  
+  // Karena 'penilaian' sederhana (hanya 'nilai'),
+  // kita bisa catat nilainya secara langsung
+  old_nilai Int?
+  new_nilai Int?
+
+  @@index([id_jadwal])
+  @@index([actor_id])
 }
