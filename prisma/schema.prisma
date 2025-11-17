@@ -125,7 +125,6 @@ enum PenilaiKomponenPenilaian {
 
 model penilaian {
   id_jadwal             String @db.VarChar(14)
-  id_komponen_penilaian String @db.VarChar(7)
   nilai                 Json
 
   // Foreign Key ke dosen
@@ -136,7 +135,7 @@ model penilaian {
   jadwal jadwal @relation("PenilaianJadwal", fields: [id_jadwal], references: [id], onDelete: NoAction, onUpdate: Cascade)
 
   // Definisikan composite primary key di sini
-  @@id([id_jadwal, id_komponen_penilaian], map: "pk_penilaian")
+  @@id([id_jadwal], map: "pk_penilaian")
 }
 
 enum LogActionType {
