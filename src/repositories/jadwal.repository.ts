@@ -11,6 +11,7 @@ export default class JadwalRepository {
         ...(jenis && { jenis }),
       },
       include: {
+        mahasiswa: true,
         penilaian: true,
       },
     });
@@ -36,16 +37,73 @@ export default class JadwalRepository {
     });
   }
 
+  public static async existsByMahasiswaJenisTahun(nim: string, jenis: JenisJadwal, kode_tahun_ajaran: string, excludeId?: string) {
+    return await prisma.jadwal.findFirst({
+      where: {
+        nim,
+        jenis,
+        kode_tahun_ajaran,
+        ...(excludeId && { id: { not: excludeId } }),
+      },
+      select: { id: true },
+    });
+  }
+
   public static async create(data: PostJadwalType) {
+    const createData: any = {
+      id: data.id,
+      tanggal: data.tanggal,
+      waktu_mulai: data.waktu_mulai,
+      waktu_selesai: data.waktu_selesai,
+      jenis: data.jenis,
+      kode_tahun_ajaran: data.kode_tahun_ajaran,
+      nim: data.nim,
+      kode_ruangan: data.kode_ruangan,
+      nip_pembimbing_1: data.nip_pembimbing_1,
+      nip_penguji_1: data.nip_penguji_1,
+    };
+
+    if (data.nip_pembimbing_2) {
+      createData.nip_pembimbing_2 = data.nip_pembimbing_2;
+    }
+    if (data.nip_penguji_2) {
+      createData.nip_penguji_2 = data.nip_penguji_2;
+    }
+    if (data.nip_ketua_sidang) {
+      createData.nip_ketua_sidang = data.nip_ketua_sidang;
+    }
+
     return await prisma.jadwal.create({
-      data,
+      data: createData,
     });
   }
 
   public static async update(id: string, data: PostJadwalType) {
+    const updateData: any = {
+      tanggal: data.tanggal,
+      waktu_mulai: data.waktu_mulai,
+      waktu_selesai: data.waktu_selesai,
+      jenis: data.jenis,
+      kode_tahun_ajaran: data.kode_tahun_ajaran,
+      nim: data.nim,
+      kode_ruangan: data.kode_ruangan,
+      nip_pembimbing_1: data.nip_pembimbing_1,
+      nip_penguji_1: data.nip_penguji_1,
+    };
+
+    if (data.nip_pembimbing_2) {
+      updateData.nip_pembimbing_2 = data.nip_pembimbing_2;
+    }
+    if (data.nip_penguji_2) {
+      updateData.nip_penguji_2 = data.nip_penguji_2;
+    }
+    if (data.nip_ketua_sidang) {
+      updateData.nip_ketua_sidang = data.nip_ketua_sidang;
+    }
+
     return await prisma.jadwal.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 
@@ -66,5 +124,11 @@ export default class JadwalRepository {
       },
     });
     return lastJadwal ? lastJadwal.id : null;
+  }
+
+  public static async destroy(id: string) {
+    return await prisma.jadwal.delete({
+      where: { id },
+    });
   }
 }

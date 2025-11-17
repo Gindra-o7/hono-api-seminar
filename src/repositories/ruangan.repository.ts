@@ -7,7 +7,7 @@ export default class RuanganRepository {
   }
 
   public static async findByKode(kode: string) {
-    return prisma.ruangan.findFirst({
+    return prisma.ruangan.findUnique({
       where: { kode },
     });
   }
@@ -29,10 +29,11 @@ export default class RuanganRepository {
     });
   }
 
-  public static async findKonflik(kode_ruangan: string, waktu_mulai: Date, waktu_selesai: Date) {
+  public static async findKonflik(kode_ruangan: string, waktu_mulai: Date, waktu_selesai: Date, excludeJadwalId?: string) {
     return await prisma.jadwal.findFirst({
       where: {
         kode_ruangan,
+        ...(excludeJadwalId && { id: { not: excludeJadwalId } }),
         OR: [
           {
             waktu_mulai: {

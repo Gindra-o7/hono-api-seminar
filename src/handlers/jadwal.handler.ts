@@ -27,7 +27,6 @@ export default class JadwalHandler {
 
   public static async post(c: Context) {
     const data = await c.req.json();
-
     return c.json(await JadwalService.post(data), 201);
   }
 
@@ -35,5 +34,10 @@ export default class JadwalHandler {
     const { id } = c.req.param();
     const body = await c.req.json();
     return c.json(await JadwalService.put(id, body));
+  }
+
+  public static async delete(c: Context) {
+    const { id } = c.req.param();
+    return c.json(await JadwalService.delete(id));
   }
 }

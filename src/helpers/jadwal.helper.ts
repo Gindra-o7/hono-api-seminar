@@ -3,6 +3,9 @@ import JadwalRepository from "../repositories/jadwal.repository";
 import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
+  // Konfigurasi timezone - ubah ke false untuk production (server Swedia)
+  private static readonly IS_DEVELOPMENT_LOCALHOST = true;
+
   public static async generateId(jenis: JenisJadwal): Promise<string> {
     const singkatan = this.singkatanJenis(jenis);
     const tahunAjaran = TahunAjaranHelper.findSekarang();
@@ -34,21 +37,65 @@ export default class JadwalHelper {
     return pemetaan[jenis] || "JNS";
   }
 
-  // public static convertJadwalTime(jadwal: any[]) {
-  //   const timezone = "Asia/Jakarta";
-  //   const options: Intl.DateTimeFormatOptions = {
-  //     timezone,
-  //     year: "numeric",
-  //     month: "long",
-  //     day: "numeric",
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     second: "2-digit",
-  //   };
-  //   return jadwal.map((j) => ({
-  //     ...j,
-  //     waktu_mulai: new Date(j.waktu_mulai).toLocaleTimeString("id-ID", options),
-  //     waktu_selesai: new Date(j.waktu_selesai).toLocaleTimeString("id-ID", options),
-  //   }));
-  // }
+  public static convertToJakartaTimezone(date: Date): Date {
+    if (this.IS_DEVELOPMENT_LOCALHOST) {
+      return new Date(date);
+    }
+
+    const timeZone = "Asia/Jakarta";
+    const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    return new Date(dateFormatter.format(date));
+  }
+
+  public static convertFromJakartaTimezone(date: Date): Date {
+    if (this.IS_DEVELOPMENT_LOCALHOST) {
+      return new Date(date);
+    }
+
+    const timeZone = "Asia/Jakarta";
+    const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    const jakartaFormatted = dateFormatter.format(date);
+    return new Date(jakartaFormatted);
+  }
+
+  public static getCurrentJakartaTime(): Date {
+    if (this.IS_DEVELOPMENT_LOCALHOST) {
+      return new Date();
+    }
+
+    const timeZone = "Asia/Jakarta";
+    const today = new Date();
+    const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    return new Date(dateFormatter.format(today));
+  }
 }

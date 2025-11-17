@@ -107,8 +107,6 @@ model komponen_penilaian {
   persentase Int                      @db.Integer
   is_aktif   Boolean                  @db.Boolean
   penilai    PenilaiKomponenPenilaian
-
-  penilaian penilaian[] @relation("PenilaianKomponenPenilaian")
 }
 
 enum PenilaiKomponenPenilaian {
@@ -128,15 +126,14 @@ enum PenilaiKomponenPenilaian {
 model penilaian {
   id_jadwal             String @db.VarChar(14)
   id_komponen_penilaian String @db.VarChar(7)
-  nilai                 Int    @db.Integer
+  nilai                 Json
 
   // Foreign Key ke dosen
   nip       String @db.VarChar(18)
   nip_dosen dosen  @relation("Penilai", fields: [nip], references: [nip], onDelete: NoAction, onUpdate: Cascade)
 
-  // Relasi dengan Jadwal dan Komponen Penilaian
-  jadwal             jadwal             @relation("PenilaianJadwal", fields: [id_jadwal], references: [id], onDelete: NoAction, onUpdate: Cascade)
-  komponen_penilaian komponen_penilaian @relation("PenilaianKomponenPenilaian", fields: [id_komponen_penilaian], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  // Relasi dengan Jadwal
+  jadwal jadwal @relation("PenilaianJadwal", fields: [id_jadwal], references: [id], onDelete: NoAction, onUpdate: Cascade)
 
   // Definisikan composite primary key di sini
   @@id([id_jadwal, id_komponen_penilaian], map: "pk_penilaian")
