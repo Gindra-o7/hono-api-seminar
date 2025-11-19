@@ -37,6 +37,9 @@ model dosen {
   jadwalSebagaiPenguji1    jadwal[] @relation("Penguji1")
   jadwalSebagaiPenguji2    jadwal[] @relation("Penguji2")
   jadwalSebagaiKetuaSidang jadwal[] @relation("KetuaSidang")
+
+  // Relasi untuk absensi (dosen sebagai approver)
+  absensiSebagaiApprover absensi[] @relation("DosenApprover")
 }
 
 model mahasiswa {
@@ -47,7 +50,8 @@ model mahasiswa {
 
   nip   String @db.VarChar(18)
   dosen dosen  @relation("MahasiswaPA", fields: [nip], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_mahasiswa")
-
+  
+  absensi absensi[] @relation("MahasiswaAbsensi")
   jadwal jadwal[] @relation("JadwalMahasiswa")
 }
 
@@ -96,6 +100,9 @@ model jadwal {
 
   // Relasi dengan Penilaian
   penilaian penilaian[] @relation("PenilaianJadwal")
+
+  // Relasi dengan Absensi
+  absensi absensi[] @relation("AbsensiJadwal")
 
   // Relasi dengan Tahun Ajaran
   kode_tahun_ajaran String @db.VarChar(5)
@@ -194,4 +201,68 @@ model log_penilaian {
 
   @@index([id_jadwal])
   @@index([actor_id])
+}
+
+enum StatusAbsensi {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model absensi {
+  id              String         @id(map: "pk_id_absensi") @default(cuid())
+  status          StatusAbsensi  @default(PENDING)
+  catatan_mhs     String?        @db.Text // Catatan dari mahasiswa saat submit
+  catatan_reject  String?        @db.Text // Alasan reject dari dosen
+  tanda_tangan    String?        @db.Text // Base64 atau URL tanda tangan digital
+  waktu_submit    DateTime       @default(now()) @db.Timestamptz
+  waktu_approved  DateTime?      @db.Timestamptz
+  waktu_rejected  DateTime?      @db.Timestamptz
+  waktu_cancelled DateTime?      @db.Timestamptz
+
+  // Foreign Key ke jadwal (seminar yang dihadiri)
+  id_jadwal String @db.VarChar(14)
+  jadwal    jadwal @relation("AbsensiJadwal", fields: [id_jadwal], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_id_jadwal_absensi")
+
+  // Foreign Key ke mahasiswa (yang hadir)
+  nim       String    @db.VarChar(11)
+  mahasiswa mahasiswa @relation("MahasiswaAbsensi", fields: [nim], references: [nim], onDelete: Cascade, onUpdate: Cascade, map: "fk_nim_mahasiswa_absensi")
+
+  // Foreign Key ke dosen (yang approve/reject)
+  nip_approver String? @db.VarChar(18)
+  dosen        dosen?  @relation("DosenApprover", fields: [nip_approver], references: [nip], onDelete: NoAction, onUpdate: Cascade, map: "fk_nip_dosen_approver")
+
+  // Relasi dengan Log Absensi
+  log_absensi log_absensi[]
+
+  // Constraint: Satu mahasiswa hanya bisa absen sekali per jadwal
+  @@unique([id_jadwal, nim], map: "unique_absensi_jadwal_mahasiswa")
+  @@index([id_jadwal], map: "idx_absensi_jadwal")
+  @@index([nim], map: "idx_absensi_mahasiswa")
+  @@index([status], map: "idx_absensi_status")
+  @@index([nip_approver], map: "idx_absensi_approver")
+}
+
+model log_absensi {
+  id        String        @id @default(cuid())
+  timestamp DateTime      @default(now()) @db.Timestamptz
+  action    LogActionType
+
+  // Siapa yang melakukan perubahan
+  actor_type LogActorType
+  actor_id   String // NIM mahasiswa atau NIP dosen
+
+  // ID dari absensi yang berubah
+  id_absensi String
+  absensi    absensi @relation(fields: [id_absensi], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_id_absensi_log")
+
+  // Data lama dan data baru disimpan sebagai JSON
+  // Contoh: {"status": "PENDING", "catatan": "..."}
+  old_values Json?
+  new_values Json?
+
+  @@index([id_absensi], map: "idx_log_absensi_id")
+  @@index([actor_id], map: "idx_log_absensi_actor")
+  @@index([timestamp], map: "idx_log_absensi_timestamp")
 }
