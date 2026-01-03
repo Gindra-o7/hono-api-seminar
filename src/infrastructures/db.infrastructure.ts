@@ -1,6 +1,7 @@
-import { Prisma, PrismaClient } from "../generated/prisma";
-import { DefaultArgs } from "../generated/prisma/runtime/library";
+import { PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate"
+import { PrismaPg } from '@prisma/adapter-pg'
 
-const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
-
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter }).$extends(withAccelerate());
 export default prisma;
