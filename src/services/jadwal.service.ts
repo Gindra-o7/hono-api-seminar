@@ -3,7 +3,7 @@ import { APIError } from "../utils/api-error.util";
 import { PostJadwalType } from "../types/jadwal.type";
 import JadwalHelper from "../helpers/jadwal.helper";
 import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
-import { JenisJadwal } from "../generated/prisma";
+import { JenisJadwal } from "@prisma/client/index-browser";
 import RuanganHelper from "../helpers/ruangan.helper";
 import DosenHelper from "../helpers/dosen.helper";
 import MahasiswaRepository from "../repositories/mahasiswa.repository";
@@ -35,7 +35,11 @@ export default class JadwalService {
     const kode_tahun_ajaran = TahunAjaranHelper.findSekarang();
     const jadwal = await JadwalRepository.findAll(kode_tahun_ajaran, jenis);
     if (!jadwal || jadwal.length === 0) {
-      throw new APIError("Jadwal tidak ditemukan", 404);
+      return {
+        response: true,
+        message: "Data jadwal masih kosong",
+        data: [],
+      }
     }
 
     const tahunSekarang = parseInt(kode_tahun_ajaran.slice(0, 4));

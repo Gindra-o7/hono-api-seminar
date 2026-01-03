@@ -1,7 +1,7 @@
 import prisma from "../infrastructures/db.infrastructure";
 import { PostJadwalType } from "../types/jadwal.type";
-import { JenisJadwal } from "../generated/prisma";
 import JadwalHelper from "../helpers/jadwal.helper";
+import { JenisJadwal } from "@prisma/client/index-browser";
 
 export default class JadwalRepository {
   public static async findAll(kode_tahun_ajaran: string, jenis?: JenisJadwal) {
