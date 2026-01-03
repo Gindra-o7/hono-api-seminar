@@ -1,10 +1,12 @@
-import { JenisJadwal } from "../generated/prisma";
+import { JenisJadwal } from "@prisma/client";
 import JadwalRepository from "../repositories/jadwal.repository";
 import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
-  // Konfigurasi timezone - ubah ke false untuk production (server Swedia)
-  private static readonly IS_DEVELOPMENT_LOCALHOST = true;
+  // Server timezone: Europe/Stockholm (Sweden)
+  private static readonly SERVER_TIMEZONE = "Europe/Stockholm";
+  // Client timezone: Asia/Jakarta
+  private static readonly CLIENT_TIMEZONE = "Asia/Jakarta";
 
   public static async generateId(jenis: JenisJadwal): Promise<string> {
     const singkatan = this.singkatanJenis(jenis);
@@ -38,13 +40,9 @@ export default class JadwalHelper {
   }
 
   public static convertToJakartaTimezone(date: Date): Date {
-    if (this.IS_DEVELOPMENT_LOCALHOST) {
-      return new Date(date);
-    }
-
-    const timeZone = "Asia/Jakarta";
+    // Convert from server timezone (Sweden) to client timezone (Jakarta)
     const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
-      timeZone: timeZone,
+      timeZone: this.CLIENT_TIMEZONE,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -58,13 +56,13 @@ export default class JadwalHelper {
   }
 
   public static convertFromJakartaTimezone(date: Date): Date {
-    if (this.IS_DEVELOPMENT_LOCALHOST) {
-      return new Date(date);
-    }
+    // Convert from client timezone (Jakarta) to server timezone (Sweden)
+    // Input date represents Jakarta local time, we interpret it as Jakarta time
+    // and convert to UTC for storage (which JavaScript Date stores internally)
 
-    const timeZone = "Asia/Jakarta";
-    const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
-      timeZone: timeZone,
+    // Format the input date in Jakarta timezone to get Jakarta time components
+    const jakartaFormatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: this.CLIENT_TIMEZONE,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -74,19 +72,25 @@ export default class JadwalHelper {
       hour12: false
     });
 
-    const jakartaFormatted = dateFormatter.format(date);
-    return new Date(jakartaFormatted);
+    const jakartaFormatted = jakartaFormatter.format(date);
+
+    // Create a date from Jakarta string (treat as UTC temporarily)
+    const jakartaDate = new Date(jakartaFormatted + "Z");
+
+    // Calculate Jakarta offset: Jakarta is UTC+7 (420 minutes)
+    // We need to adjust the date to represent the correct UTC time
+    // When we parse jakartaFormatted as UTC, we're 7 hours ahead, so subtract 7 hours
+    const JAKARTA_OFFSET_MINUTES = 420; // UTC+7 = 7 * 60 minutes
+
+    // Adjust: subtract Jakarta offset to convert Jakarta time to UTC
+    return new Date(jakartaDate.getTime() - JAKARTA_OFFSET_MINUTES * 60000);
   }
 
   public static getCurrentJakartaTime(): Date {
-    if (this.IS_DEVELOPMENT_LOCALHOST) {
-      return new Date();
-    }
-
-    const timeZone = "Asia/Jakarta";
+    // Get current time in Sweden, then convert to Jakarta for display
     const today = new Date();
     const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
-      timeZone: timeZone,
+      timeZone: this.CLIENT_TIMEZONE,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
