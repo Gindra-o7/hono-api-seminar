@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { JenisJadwal } from "../generated/prisma";
+import { JenisJadwal } from "@prisma/client";
 
 export const postPutJadwalSchema = z
   .object({
