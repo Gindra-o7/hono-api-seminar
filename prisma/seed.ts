@@ -48,72 +48,84 @@ async function main() {
 				id: "KP-A-01",
 				nama: "Kemampuan Penyelesaian Masalah",
 				persentase: 40,
+				is_aktif: true,
 				penilai: "KP_PEMBIMBING"
 			},
 			{ 
 				id: "KP-A-02",
 				nama: "Keaktifan Bimbingan dan Sikap",
 				persentase: 35,
+				is_aktif: true,
 				penilai: "KP_PEMBIMBING"
 			},
 			{ 
 				id: "KP-A-03",
 				nama: "Kualitas Laporan KP",
 				persentase: 25,
+				is_aktif: true,
 				penilai: "KP_PEMBIMBING"
 			},
 			{ 
 				id: "KP-B-01",
 				nama: "Penguasaan Materi",
 				persentase: 40,
+				is_aktif: true,
 				penilai: "KP_PENGUJI"
 			},
 			{ 
 				id: "KP-B-02",
 				nama: "Teknik Presentasi",
 				persentase: 20,
+				is_aktif: true,
 				penilai: "KP_PENGUJI"
 			},
 			{ 
 				id: "KP-B-03",
 				nama: "Kesesuaian Laporan dan Presentasi",
 				persentase: 40,
+				is_aktif: true,
 				penilai: "KP_PENGUJI"
 			},
 			{ 
 				id: "KP-C-01",
 				nama: "Deliverables",
 				persentase: 15,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 			{ 
 				id: "KP-C-02",
 				nama: "Ketepatan Waktu",
 				persentase: 10,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 			{ 
 				id: "KP-C-03",
 				nama: "Kedisiplinan",
 				persentase: 15,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 			{ 
 				id: "KP-C-04",
 				nama: "Attitude",
 				persentase: 15,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 			{ 
 				id: "KP-C-05",
 				nama: "Kerjasama Tim",
 				persentase: 25,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 			{ 
 				id: "KP-C-06",
 				nama: "Inisiatif",
 				persentase: 20,
+				is_aktif: true,
 				penilai: "KP_INSTANSI"
 			},
 		],

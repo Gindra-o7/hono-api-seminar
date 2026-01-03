@@ -1,11 +1,9 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum JenisJadwal {
@@ -53,6 +51,9 @@ model mahasiswa {
   
   absensi absensi[] @relation("MahasiswaAbsensi")
   jadwal jadwal[] @relation("JadwalMahasiswa")
+
+  @@index([nama])
+  @@index([nim])
 }
 
 model ruangan {
@@ -160,7 +161,7 @@ enum LogActorType {
 // Model untuk mencatat log perubahan pada JADWAL
 model log_jadwal {
   id        String    @id @default(cuid())
-  timestamp DateTime  @default(now())
+  timestamp DateTime  @default(now()) @db.Timestamptz()
   action    LogActionType
 
   // Siapa yang melakukan perubahan
@@ -183,7 +184,7 @@ model log_jadwal {
 // Model untuk mencatat log perubahan pada PENILAIAN
 model log_penilaian {
   id        String    @id @default(cuid())
-  timestamp DateTime  @default(now())
+  timestamp DateTime  @default(now()) @db.Timestamptz()
   action    LogActionType
 
   // Siapa yang melakukan perubahan
@@ -213,8 +214,6 @@ enum StatusAbsensi {
 model absensi {
   id              String         @id(map: "pk_id_absensi") @default(cuid())
   status          StatusAbsensi  @default(PENDING)
-  catatan_mhs     String?        @db.Text // Catatan dari mahasiswa saat submit
-  catatan_reject  String?        @db.Text // Alasan reject dari dosen
   tanda_tangan    String?        @db.Text // Base64 atau URL tanda tangan digital
   waktu_submit    DateTime       @default(now()) @db.Timestamptz
   waktu_approved  DateTime?      @db.Timestamptz
