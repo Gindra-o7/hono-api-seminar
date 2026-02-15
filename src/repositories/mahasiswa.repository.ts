@@ -1,21 +1,29 @@
 import prisma from "../infrastructures/db.infrastructure";
-import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
+
+export interface CreateMahasiswaInput {
+  nim: string;
+  nama: string;
+  email: string;
+  aktif?: boolean;
+}
+
+export interface UpdateMahasiswaInput {
+  nama?: string;
+  email?: string;
+  aktif?: boolean;
+}
 
 export default class MahasiswaRepository {
-  public static async findAll(skip: number, take: number, sortBy?: "asc" | "desc") {
+  public static async findAll(skip?: number, take?: number, sortBy?: "asc" | "desc") {
     return prisma.mahasiswa.findMany({
-      skip,
-      take,
-      orderBy: sortBy ? { nama: sortBy } : undefined,
+      ...(skip !== undefined && { skip }),
+      ...(take !== undefined && { take }),
+      orderBy: sortBy ? { nama: sortBy } : { nama: "asc" },
     });
   }
 
   public static async countAll() {
     return prisma.mahasiswa.count();
-  }
-
-  public static async findMany() {
-    return prisma.mahasiswa.findMany();
   }
 
   public static async findByNIM(nim: string) {
@@ -30,48 +38,92 @@ export default class MahasiswaRepository {
     });
   }
 
-  public static async search(query?: string, angkatan?: number, sortBy?: "asc" | "desc") {
-    // Jika ada filter angkatan, gunakan raw query untuk substring
-    if (angkatan) {
-      const angkatanDigits = angkatan.toString().slice(-2); // 2022 -> "22"
-
-      const orderClause = sortBy ? `ORDER BY nama ${sortBy.toUpperCase()}` : "";
-
-      const sqlQuery = `
-        SELECT * FROM mahasiswa 
-        WHERE SUBSTRING(nim, 2, 2) = $1 
-        ${orderClause}
-      `;
-
-      return prisma.$queryRawUnsafe(sqlQuery, angkatanDigits);
-    }
-
-    // Jika tidak ada filter angkatan, return semua untuk fuzzy search
-    return prisma.mahasiswa.findMany({
-      orderBy: sortBy ? { nama: sortBy } : undefined,
+  public static async create(data: CreateMahasiswaInput) {
+    return prisma.mahasiswa.create({
+      data,
     });
   }
 
-  public static async findAngkatan() {
-    const tahunAjaranSekarang = TahunAjaranHelper.findSekarang();
-    const tahunSekarang = parseInt(tahunAjaranSekarang.slice(0, 4));
-    const semesterSekarang = parseInt(tahunAjaranSekarang.slice(4));
+  public static async update(nim: string, data: UpdateMahasiswaInput) {
+    return prisma.mahasiswa.update({
+      where: { nim },
+      data,
+    });
+  }
 
-    // Hitung angkatan minimal untuk semester >= 6
-    // semester = (tahunSekarang - angkatan) * 2 + semesterSekarang >= 6
-    // (tahunSekarang - angkatan) * 2 >= 6 - semesterSekarang
-    // angkatan <= tahunSekarang - (6 - semesterSekarang) / 2
-    const minSemesterOffset = Math.ceil((6 - semesterSekarang) / 2);
-    const maxAngkatan = tahunSekarang - minSemesterOffset;
+  public static async destroy(nim: string) {
+    return prisma.mahasiswa.delete({
+      where: { nim },
+    });
+  }
 
+  public static async search(query?: string, sortBy?: "asc" | "desc") {
+    if (query) {
+      return prisma.mahasiswa.findMany({
+        where: {
+          OR: [{ nim: { contains: query, mode: "insensitive" } }, { nama: { contains: query, mode: "insensitive" } }, { email: { contains: query, mode: "insensitive" } }],
+        },
+        orderBy: sortBy ? { nama: sortBy } : { nama: "asc" },
+      });
+    }
+
+    return prisma.mahasiswa.findMany({
+      orderBy: sortBy ? { nama: sortBy } : { nama: "asc" },
+    });
+  }
+
+  public static async findByAngkatan(angkatan: number, sortBy?: "asc" | "desc") {
+    const angkatanDigits = angkatan.toString().slice(-2);
+
+    const orderClause = sortBy ? `ORDER BY nama ${sortBy.toUpperCase()}` : "ORDER BY nama ASC";
+
+    const sqlQuery = `
+      SELECT * FROM mahasiswa 
+      WHERE SUBSTRING(nim, 2, 2) = $1 
+      ${orderClause}
+    `;
+
+    return prisma.$queryRawUnsafe(sqlQuery, angkatanDigits);
+  }
+
+  public static async findDistinctAngkatan() {
     const angkatanList = await prisma.$queryRaw<{ angkatan: number }[]>`
       SELECT DISTINCT 
         CAST('20' || SUBSTRING(nim, 2, 2) AS INTEGER) AS angkatan
       FROM mahasiswa
       WHERE LENGTH(nim) >= 3
-        AND CAST('20' || SUBSTRING(nim, 2, 2) AS INTEGER) <= ${maxAngkatan}
-      ORDER BY angkatan
+      ORDER BY angkatan DESC
     `;
     return angkatanList.map((item) => item.angkatan);
+  }
+
+  public static async findAktif() {
+    return prisma.mahasiswa.findMany({
+      where: { aktif: true },
+      orderBy: { nama: "asc" },
+    });
+  }
+
+  public static async getMahasiswaWithJadwal(nim: string) {
+    return prisma.mahasiswa.findUnique({
+      where: { nim },
+      include: {
+        jadwal: {
+          include: {
+            ruangan: true,
+            penilaian: {
+              include: {
+                dosen: true,
+                detail_penilaian: {
+                  include: {
+                    komponen: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

@@ -1,6 +1,6 @@
 import RuanganRepository from "../repositories/ruangan.repository";
 import { APIError } from "../utils/api-error.util";
-import { PostRuanganType } from "../types/ruangan.type";
+import { CreateRuanganType, UpdateRuanganType } from "../types/ruangan.type";
 
 export default class RuanganService {
   public static async getAll() {
@@ -24,7 +24,7 @@ export default class RuanganService {
     };
   }
 
-  public static async post(data: PostRuanganType) {
+  public static async post(data: CreateRuanganType) {
     const existingRuangan = await RuanganRepository.findByKode(data.kode);
     if (existingRuangan) {
       throw new APIError(`Ruangan dengan nama ${data.nama} sudah ada`, 409);
@@ -38,9 +38,9 @@ export default class RuanganService {
     };
   }
 
-  public static async put(nama: string, data: PostRuanganType) {
-    await this.get(nama);
-    const ruangan = await RuanganRepository.update(nama, data);
+  public static async put(kode: string, data: UpdateRuanganType) {
+    await this.get(kode);
+    const ruangan = await RuanganRepository.update(kode, data);
     return {
       response: true,
       message: "Ruangan berhasil diperbarui",

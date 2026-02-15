@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import RuanganService from "../services/ruangan.service";
-import { PostRuanganType } from "../types/ruangan.type";
+import { CreateRuanganType, UpdateRuanganType } from "../types/ruangan.type";
 
 export default class RuanganHandler {
   public static async getAll(c: Context) {
@@ -13,13 +13,13 @@ export default class RuanganHandler {
   }
 
   public static async post(c: Context) {
-    const body: PostRuanganType = await c.req.json();
+    const body: CreateRuanganType = await c.req.json();
     return c.json(await RuanganService.post(body), 201);
   }
 
   public static async put(c: Context) {
     const { kode } = c.req.param();
-    const body: PostRuanganType = await c.req.json();
+    const body: UpdateRuanganType = await c.req.json();
     return c.json(await RuanganService.put(kode, body));
   }
 

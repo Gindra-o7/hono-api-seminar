@@ -1,7 +1,18 @@
 import Fuse from "fuse.js";
-import TahunAjaranHelper from "../helpers/tahun-ajaran.helper";
 import MahasiswaRepository from "../repositories/mahasiswa.repository";
 import { APIError } from "../utils/api-error.util";
+
+function getCurrentAcademicInfo() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  // Academic year starts in September (month 8)
+  const tahunSekarang = month < 8 ? year - 1 : year;
+  const semesterSekarang = month < 2 || month >= 8 ? 1 : 2;
+
+  return { tahunSekarang, semesterSekarang };
+}
 
 export default class MahasiswaService {
   public static async getMe(email: string) {
@@ -23,9 +34,7 @@ export default class MahasiswaService {
       throw new APIError(`Tidak ada data mahasiswa`, 404);
     }
 
-    const tahunAjaranSekarang = TahunAjaranHelper.findSekarang();
-    const tahunSekarang = parseInt(tahunAjaranSekarang.slice(0, 4));
-    const semesterSekarang = parseInt(tahunAjaranSekarang.slice(4));
+    const { tahunSekarang, semesterSekarang } = getCurrentAcademicInfo();
 
     const mahasiswaWithSemester = allMahasiswa.map((m) => {
       const angkatan = parseInt(`20${m.nim.slice(1, 3)}`);
@@ -43,7 +52,7 @@ export default class MahasiswaService {
 
     return {
       response: true,
-      message: "Data semua mahasiswa berhasil diambil! 😁",
+      message: "Data semua mahasiswa berhasil diambil!",
       data: {
         mahasiswa: filteredMahasiswa,
         pagination: {
@@ -62,24 +71,22 @@ export default class MahasiswaService {
     }
     return {
       response: true,
-      message: "Data mahasiswa berhasil diambil! 😁",
+      message: "Data mahasiswa berhasil diambil!",
       data: mahasiswa,
     };
   }
   public static async search(query?: string, filterAngkatan?: number, sortBy?: "asc" | "desc", page: number = 1, limit: number = 10) {
     // Lakukan pencarian di SQL terlebih dahulu (hanya filter angkatan)
-    const sqlResults = await MahasiswaRepository.search(query, filterAngkatan, sortBy);
+    const sqlResults = filterAngkatan ? await MahasiswaRepository.findByAngkatan(filterAngkatan, sortBy) : await MahasiswaRepository.search(query, sortBy);
 
-    if (!sqlResults || sqlResults.length === 0) {
+    if (!sqlResults || (sqlResults as any[]).length === 0) {
       throw new APIError(`Mahasiswa tidak ditemukan`, 404);
     }
 
-    const tahunAjaranSekarang = TahunAjaranHelper.findSekarang();
-    const tahunSekarang = parseInt(tahunAjaranSekarang.slice(0, 4));
-    const semesterSekarang = parseInt(tahunAjaranSekarang.slice(4));
+    const { tahunSekarang, semesterSekarang } = getCurrentAcademicInfo();
 
     // Tambahkan informasi semester dan angkatan
-    const mahasiswaWithDetails = sqlResults.map((m: any) => {
+    const mahasiswaWithDetails = (sqlResults as any[]).map((m: any) => {
       const angkatan = parseInt(`20${m.nim.slice(1, 3)}`);
       const semester = (tahunSekarang - angkatan) * 2 + semesterSekarang;
       return { ...m, semester, angkatan };
@@ -204,7 +211,7 @@ export default class MahasiswaService {
   }
 
   public static async getAngkatanList() {
-    const angkatanList = await MahasiswaRepository.findAngkatan();
+    const angkatanList = await MahasiswaRepository.findDistinctAngkatan();
     return {
       response: true,
       message: "Data angkatan berhasil diambil!",

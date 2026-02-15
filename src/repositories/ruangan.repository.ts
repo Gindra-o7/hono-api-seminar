@@ -1,9 +1,23 @@
 import prisma from "../infrastructures/db.infrastructure";
-import { PostRuanganType } from "../types/ruangan.type";
+
+export interface CreateRuanganInput {
+  kode: string;
+  nama: string;
+  status?: boolean;
+}
+
+export interface UpdateRuanganInput {
+  nama?: string;
+  status?: boolean;
+}
 
 export default class RuanganRepository {
   public static async findAll() {
-    return prisma.ruangan.findMany();
+    return prisma.ruangan.findMany({
+      orderBy: {
+        kode: "asc",
+      },
+    });
   }
 
   public static async findByKode(kode: string) {
@@ -12,11 +26,26 @@ export default class RuanganRepository {
     });
   }
 
-  public static async create(data: PostRuanganType) {
-    return prisma.ruangan.create({ data });
+  public static async findAktif() {
+    return prisma.ruangan.findMany({
+      where: { status: true },
+      orderBy: {
+        kode: "asc",
+      },
+    });
   }
 
-  public static async update(kode: string, data: PostRuanganType) {
+  public static async create(data: CreateRuanganInput) {
+    return prisma.ruangan.create({
+      data: {
+        kode: data.kode,
+        nama: data.nama,
+        status: data.status ?? true,
+      },
+    });
+  }
+
+  public static async update(kode: string, data: UpdateRuanganInput) {
     return prisma.ruangan.update({
       where: { kode },
       data,
@@ -29,21 +58,41 @@ export default class RuanganRepository {
     });
   }
 
-  public static async findKonflik(kode_ruangan: string, waktu_mulai: Date, waktu_selesai: Date, excludeJadwalId?: string) {
-    return await prisma.jadwal.findFirst({
+  public static async checkTimeConflict(kode_ruangan: string, waktu_mulai: Date, waktu_selesai: Date, excludeJadwalId?: string) {
+    return prisma.jadwal.findFirst({
       where: {
         kode_ruangan,
         ...(excludeJadwalId && { id: { not: excludeJadwalId } }),
-        OR: [
+        AND: [
           {
-            waktu_mulai: {
-              lt: waktu_selesai,
-            },
-            waktu_selesai: {
-              gt: waktu_mulai,
-            },
+            waktu_mulai: { lt: waktu_selesai },
+            waktu_selesai: { gt: waktu_mulai },
           },
         ],
+      },
+      include: {
+        mahasiswa: true,
+      },
+    });
+  }
+
+  public static async getRuanganWithJadwal(kode: string) {
+    return prisma.ruangan.findUnique({
+      where: { kode },
+      include: {
+        jadwal: {
+          include: {
+            mahasiswa: true,
+            penilaian: {
+              include: {
+                dosen: true,
+              },
+            },
+          },
+          orderBy: {
+            tanggal: "desc",
+          },
+        },
       },
     });
   }

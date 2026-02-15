@@ -8,17 +8,17 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.3",
-    "@prisma/adapter-pg": "^7.0.1",
-    "@prisma/client": "^7.0.1",
-    "@prisma/extension-accelerate": "^3.0.0",
-    "@types/nodemailer": "^6.4.17",
+    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/client": "^7.4.0",
+    "@prisma/extension-accelerate": "^3.0.1",
+    "@types/nodemailer": "^6.4.22",
     "colorette": "^2.0.20",
     "fuse.js": "^7.1.0",
-    "hono": "^4.7.7",
-    "nodemailer": "^7.0.4",
-    "prisma": "^7.0.1",
+    "hono": "^4.11.9",
+    "nodemailer": "^7.0.13",
+    "prisma": "^7.4.0",
     "simple-crypto-js": "^3.0.1",
-    "zod": "^3.24.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bun": "latest"

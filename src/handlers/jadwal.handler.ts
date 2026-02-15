@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import JadwalService from "../services/jadwal.service";
 import { APIError } from "../utils/api-error.util";
-import { JenisJadwal } from "../generated/prisma";
+import { JenisJadwal } from "@prisma/client";
 
 export default class JadwalHandler {
   public static async getMe(c: Context) {

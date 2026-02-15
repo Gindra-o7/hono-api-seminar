@@ -1,6 +1,5 @@
 import { JenisJadwal } from "@prisma/client";
 import JadwalRepository from "../repositories/jadwal.repository";
-import TahunAjaranHelper from "./tahun-ajaran.helper";
 
 export default class JadwalHelper {
   // Server timezone: Europe/Stockholm (Sweden)
@@ -8,12 +7,25 @@ export default class JadwalHelper {
   // Client timezone: Asia/Jakarta
   private static readonly CLIENT_TIMEZONE = "Asia/Jakarta";
 
+  private static getTahunAkademik(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed
+
+    // Academic year starts in September (month 8)
+    // If we're before September, use previous year
+    if (month < 8) {
+      return String(year - 1).slice(-2) + String(year).slice(-2);
+    }
+    return String(year).slice(-2) + String(year + 1).slice(-2);
+  }
+
   public static async generateId(jenis: JenisJadwal): Promise<string> {
     const singkatan = this.singkatanJenis(jenis);
-    const tahunAjaran = TahunAjaranHelper.findSekarang();
+    const tahunAjaran = this.getTahunAkademik();
     const prefix = `J${singkatan}${tahunAjaran}`;
 
-    const lastId = await JadwalRepository.findLastId(jenis, tahunAjaran);
+    const lastId = await JadwalRepository.findLastIdByJenis(jenis, prefix);
 
     let nextNumber = 1;
     if (lastId) {
@@ -43,13 +55,13 @@ export default class JadwalHelper {
     // Convert from server timezone (Sweden) to client timezone (Jakarta)
     const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
       timeZone: this.CLIENT_TIMEZONE,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
     });
 
     return new Date(dateFormatter.format(date));
@@ -63,13 +75,13 @@ export default class JadwalHelper {
     // Format the input date in Jakarta timezone to get Jakarta time components
     const jakartaFormatter = new Intl.DateTimeFormat("sv-SE", {
       timeZone: this.CLIENT_TIMEZONE,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
     });
 
     const jakartaFormatted = jakartaFormatter.format(date);
@@ -91,13 +103,13 @@ export default class JadwalHelper {
     const today = new Date();
     const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
       timeZone: this.CLIENT_TIMEZONE,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
     });
 
     return new Date(dateFormatter.format(today));
