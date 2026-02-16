@@ -1,7 +1,8 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { RegExpRouter } from "hono/router/reg-exp-router";
-import { BlankEnv, BlankSchema } from "hono/types";
+import { swaggerUI } from "@hono/swagger-ui";
+import { apiReference } from "@scalar/hono-api-reference";
 import { config } from "./config";
 import { bootstrap, shutdown } from "./bootstrap";
 import { createLogger } from "./utils/logger.util";
@@ -18,7 +19,7 @@ const logger = createLogger("Server");
 // Initialize DI Container
 await bootstrap();
 
-const app: Hono<BlankEnv, BlankSchema, "/"> = new Hono({
+const app = new OpenAPIHono({
   router: new RegExpRouter(),
 });
 
@@ -33,10 +34,43 @@ app.use(
   }),
 );
 
-app.use("*", LogMiddleware.hanzLogger);
+app.use("*", LogMiddleware.structuredLogger);
 
 app.notFound(GlobalHandler.notFound);
 app.onError(GlobalHandler.error);
+
+// OpenAPI Documentation
+app.doc("/openapi.json", {
+  openapi: "3.1.0",
+  info: {
+    title: "Hono API Seminar - TIF UIN Suska",
+    version: config.app.version,
+    description: "API untuk sistem manajemen seminar kerja praktik dan tugas akhir",
+  },
+  servers: [
+    {
+      url: `http://${config.server.host}:${config.server.port}`,
+      description: "Development Server",
+    },
+  ],
+});
+
+// Swagger UI
+app.get(
+  "/docs",
+  swaggerUI({
+    url: "/openapi.json",
+  }),
+);
+
+// Scalar API Reference (alternative UI)
+app.get(
+  "/reference",
+  apiReference({
+    theme: "purple",
+    url: "/openapi.json",
+  }),
+);
 
 app.route("/", globalRoute);
 app.route("/", jadwalRoute);

@@ -10,10 +10,10 @@ export const zodError = (result: any, c: Context) => {
     return c.json(
       {
         response: false,
-        message: "Format data tidak valid. ❌",
+        message: "Format data tidak valid.",
         errors: errors,
       },
-      400
+      400,
     );
   }
 };

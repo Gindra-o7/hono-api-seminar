@@ -5,7 +5,7 @@ import MahasiswaService from "../services/mahasiswa.service";
 export default class MahasiswaHandler {
   public static async getMe(c: Context) {
     const { email } = c.get("user");
-    if (!email) throw new APIError("Waduh, email kamu kosong cuy! 😭", 404);
+    if (!email) throw new APIError("Email tidak ditemukan.", 404);
     return c.json(await MahasiswaService.getMe(email));
   }
 
@@ -19,7 +19,7 @@ export default class MahasiswaHandler {
     const { nim } = c.req.param();
     return c.json(await MahasiswaService.get(nim));
   }
-  
+
   public static async search(c: Context) {
     const query = c.req.query("q");
     const angkatan = c.req.query("angkatan");
@@ -28,6 +28,7 @@ export default class MahasiswaHandler {
 
     return c.json(await MahasiswaService.search(query?.trim(), angkatan ? parseInt(angkatan) : undefined, sortBy, Number(page), Number(limit)));
   }
+  
   public static async getAngkatanList(c: Context) {
     return c.json(await MahasiswaService.getAngkatanList());
   }

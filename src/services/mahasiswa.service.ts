@@ -18,11 +18,11 @@ export default class MahasiswaService {
   public static async getMe(email: string) {
     const mahasiswa = await MahasiswaRepository.findByEmail(email);
     if (!mahasiswa) {
-      throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
+      throw new APIError(`Data mahasiswa tidak ditemukan.`, 404);
     }
     return {
       response: true,
-      message: "Data kamu berhasil diambil! 😁",
+      message: "Data mahasiswa berhasil diambil.",
       data: mahasiswa,
     };
   }
@@ -52,7 +52,7 @@ export default class MahasiswaService {
 
     return {
       response: true,
-      message: "Data semua mahasiswa berhasil diambil!",
+      message: "Data semua mahasiswa berhasil diambil.",
       data: {
         mahasiswa: filteredMahasiswa,
         pagination: {
@@ -67,17 +67,17 @@ export default class MahasiswaService {
   public static async get(nim: string) {
     const mahasiswa = await MahasiswaRepository.findByNIM(nim);
     if (!mahasiswa) {
-      throw new APIError(`Waduh, kamu siapa sih? 😭`, 404);
+      throw new APIError(`Data mahasiswa tidak ditemukan.`, 404);
     }
     return {
       response: true,
-      message: "Data mahasiswa berhasil diambil!",
+      message: "Data mahasiswa berhasil diambil.",
       data: mahasiswa,
     };
   }
   public static async search(query?: string, filterAngkatan?: number, sortBy?: "asc" | "desc", page: number = 1, limit: number = 10) {
-    // Lakukan pencarian di SQL terlebih dahulu (hanya filter angkatan)
-    const sqlResults = filterAngkatan ? await MahasiswaRepository.findByAngkatan(filterAngkatan, sortBy) : await MahasiswaRepository.search(query, sortBy);
+    // Ambil semua data atau filter berdasarkan angkatan saja (tanpa query text)
+    const sqlResults = filterAngkatan ? await MahasiswaRepository.findByAngkatan(filterAngkatan, sortBy) : await MahasiswaRepository.findAll(undefined, undefined, sortBy);
 
     if (!sqlResults || (sqlResults as any[]).length === 0) {
       throw new APIError(`Mahasiswa tidak ditemukan`, 404);
@@ -107,7 +107,7 @@ export default class MahasiswaService {
 
       return {
         response: true,
-        message: `Ditemukan ${total} mahasiswa! 🔍`,
+        message: `Ditemukan ${total} mahasiswa.`,
         data: paginatedData,
         query: query || "",
         filters: {
@@ -123,15 +123,15 @@ export default class MahasiswaService {
       };
     }
 
-    // Fuzzy search untuk ranking dan highlighting yang lebih baik
+    // Fuzzy search menggunakan Fuse.js untuk toleransi typo
     const fuseOptions = {
       keys: [
         { name: "nama", weight: 0.7 },
         { name: "nim", weight: 0.3 },
       ],
-      threshold: 0.6, // Lebih toleran (0.0 = perfect match, 1.0 = match anything)
-      distance: 200, // Jarak maksimal untuk match (lebih besar = lebih toleran)
-      minMatchCharLength: 1, // Minimal 1 karakter saja
+      threshold: 0.4, // Lebih toleran terhadap typo (0.0 = perfect match, 1.0 = match anything)
+      distance: 100, // Jarak maksimal untuk match
+      minMatchCharLength: 2, // Minimal 2 karakter untuk match yang lebih akurat
       includeScore: true,
       includeMatches: true,
       ignoreLocation: true, // Tidak peduli posisi match
@@ -177,7 +177,7 @@ export default class MahasiswaService {
 
     return {
       response: true,
-      message: `Ditemukan ${formattedResults.length} mahasiswa (dari ${total} hasil)! 🔍`,
+      message: `Ditemukan ${formattedResults.length} mahasiswa (dari ${total} hasil).`,
       data: formattedResults,
       query: query,
       filters: {
@@ -214,7 +214,7 @@ export default class MahasiswaService {
     const angkatanList = await MahasiswaRepository.findDistinctAngkatan();
     return {
       response: true,
-      message: "Data angkatan berhasil diambil!",
+      message: "Data angkatan berhasil diambil.",
       data: angkatanList,
     };
   }
